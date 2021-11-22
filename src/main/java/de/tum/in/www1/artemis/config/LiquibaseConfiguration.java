@@ -13,9 +13,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 
+import de.tum.in.www1.artemis.dataUpdater.DBDataChangeExecListener;
+import de.tum.in.www1.artemis.dataUpdater.SpringLiquibaseExtension;
 import liquibase.integration.spring.SpringLiquibase;
 import tech.jhipster.config.JHipsterConstants;
-import tech.jhipster.config.liquibase.SpringLiquibaseUtil;
 
 @Configuration
 public class LiquibaseConfiguration {
@@ -24,8 +25,11 @@ public class LiquibaseConfiguration {
 
     private final Environment env;
 
-    public LiquibaseConfiguration(Environment env) {
+    // private final DBDataChangeExecListener dbDataChangeExecListener;
+
+    public LiquibaseConfiguration(Environment env/* , DBDataChangeExecListener dbDataChangeExecListener */) {
         this.env = env;
+        // this.dbDataChangeExecListener = dbDataChangeExecListener;
     }
 
     /**
@@ -39,9 +43,9 @@ public class LiquibaseConfiguration {
      */
     @Bean
     public SpringLiquibase liquibase(@LiquibaseDataSource ObjectProvider<DataSource> liquibaseDataSource, LiquibaseProperties liquibaseProperties,
-            ObjectProvider<DataSource> dataSource, DataSourceProperties dataSourceProperties) {
-        SpringLiquibase liquibase = SpringLiquibaseUtil.createSpringLiquibase(liquibaseDataSource.getIfAvailable(), liquibaseProperties, dataSource.getIfUnique(),
-                dataSourceProperties);
+            ObjectProvider<DataSource> dataSource, DataSourceProperties dataSourceProperties, DBDataChangeExecListener dbDataChangeExecListener) {
+        SpringLiquibaseExtension liquibase = SpringLiquibaseExtension.create(liquibaseDataSource.getIfAvailable(), liquibaseProperties, dataSource.getIfUnique(),
+                dataSourceProperties, dbDataChangeExecListener);
         liquibase.setChangeLog("classpath:config/liquibase/master.xml");
         liquibase.setContexts(liquibaseProperties.getContexts());
         liquibase.setDefaultSchema(liquibaseProperties.getDefaultSchema());
