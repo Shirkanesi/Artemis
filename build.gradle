@@ -87,6 +87,17 @@ modernizer {
 
 // Execute the test cases: ./gradlew executeTests
 
+
+sourceSets {
+    unit {
+        java {
+            srcDir 'src/test/java/unit'
+        }
+        compileClasspath += sourceSets.test.runtimeClasspath
+    }
+}
+
+
 test {
     useJUnitPlatform()
     exclude "**/*IT*", "**/*IntTest*"
