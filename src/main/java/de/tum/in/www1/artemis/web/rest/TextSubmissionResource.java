@@ -204,7 +204,8 @@ public class TextSubmissionResource extends AbstractSubmissionResource {
             @RequestParam(value = "lock", defaultValue = "false") boolean lockSubmission, @RequestParam(value = "correction-round", defaultValue = "0") int correctionRound) {
         log.debug("REST request to get a text submission without assessment");
         Exercise exercise = exerciseRepository.findByIdElseThrow(exerciseId);
-        authCheckService.checkHasAtLeastRoleForExerciseElseThrow(Role.TEACHING_ASSISTANT, exercise, null);
+        final User user = userRepository.getUserWithGroupsAndAuthorities();
+        authCheckService.checkHasAtLeastRoleForExerciseElseThrow(Role.TEACHING_ASSISTANT, exercise, user);
         if (!(exercise instanceof TextExercise)) {
             throw new BadRequestAlertException("The exerciseId does not belong to a text exercise", ENTITY_NAME, "wrongExerciseType");
         }
@@ -220,8 +221,17 @@ public class TextSubmissionResource extends AbstractSubmissionResource {
         // Check if the limit of simultaneously locked submissions has been reached
         textSubmissionService.checkSubmissionLockLimit(exercise.getCourseViaExerciseGroupOrCourseMember().getId());
 
-        Optional<TextSubmission> optionalTextSubmission = textSubmissionService.getRandomTextSubmissionEligibleForNewAssessment((TextExercise) exercise,
+        Optional<TextSubmission> optionalTextSubmission;
+
+        if (exercise.getFeedbackByTutorialGroup()) {
+            optionalTextSubmission = textSubmissionService.getNextTextSubmissionForTutorEligibleForNewAssessment((TextExercise) exercise,
+                skipAssessmentOrderOptimization, exercise.isExamExercise(), correctionRound, user);
+        } else {
+            optionalTextSubmission = textSubmissionService.getRandomTextSubmissionEligibleForNewAssessment((TextExercise) exercise,
                 skipAssessmentOrderOptimization, exercise.isExamExercise(), correctionRound);
+        }
+
+        // todo: own tutor
 
         // No more unassessed submissions
         if (optionalTextSubmission.isEmpty()) {

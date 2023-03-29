@@ -53,6 +53,9 @@ public abstract class Exercise extends BaseExercise implements LearningObject {
     @Column(name = "allow_manual_feedback_requests")
     private boolean allowManualFeedbackRequests;
 
+    @Column(name = "feedback_by_tutorial_group")
+    private boolean feedbackByTutorialGroup;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "included_in_overall_score")
     private IncludedInOverallScore includedInOverallScore = IncludedInOverallScore.INCLUDED_COMPLETELY;
@@ -195,6 +198,14 @@ public abstract class Exercise extends BaseExercise implements LearningObject {
 
     public void setAllowManualFeedbackRequests(boolean allowManualFeedbackRequests) {
         this.allowManualFeedbackRequests = allowManualFeedbackRequests;
+    }
+
+    public boolean getFeedbackByTutorialGroup() {
+        return feedbackByTutorialGroup;
+    }
+
+    public void setFeedbackByTutorialGroup(boolean feedbackByTutorialGroup) {
+        this.feedbackByTutorialGroup = feedbackByTutorialGroup;
     }
 
     public boolean getAllowComplaintsForAutomaticAssessments() {

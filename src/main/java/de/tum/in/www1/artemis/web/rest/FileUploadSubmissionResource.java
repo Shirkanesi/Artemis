@@ -244,14 +244,24 @@ public class FileUploadSubmissionResource extends AbstractSubmissionResource {
         fileUploadSubmissionService.checkSubmissionLockLimit(fileUploadExercise.getCourseViaExerciseGroupOrCourseMember().getId());
 
         final FileUploadSubmission submission;
-        if (lockSubmission) {
-            submission = fileUploadSubmissionService.lockAndGetFileUploadSubmissionWithoutResult((FileUploadExercise) fileUploadExercise, fileUploadExercise.isExamExercise(),
+
+        if (fileUploadExercise.getFeedbackByTutorialGroup()) {
+            if (lockSubmission) {
+                submission = fileUploadSubmissionService.lockAndGetFileUploadSubmissionForTutorWithoutResult((FileUploadExercise) fileUploadExercise, fileUploadExercise.isExamExercise(), correctionRound, user);
+            } else {
+                Optional<FileUploadSubmission> optionalFileUploadSubmission = fileUploadSubmissionService
+                    .getFileUploadSubmissionForTutorEligibleForNewAssessment((FileUploadExercise) fileUploadExercise, fileUploadExercise.isExamExercise(), correctionRound, user);
+                submission = optionalFileUploadSubmission.orElse(null);
+            }
+        } else {
+            if (lockSubmission) {
+                submission = fileUploadSubmissionService.lockAndGetFileUploadSubmissionWithoutResult((FileUploadExercise) fileUploadExercise, fileUploadExercise.isExamExercise(),
                     correctionRound);
-        }
-        else {
-            Optional<FileUploadSubmission> optionalFileUploadSubmission = fileUploadSubmissionService
+            } else {
+                Optional<FileUploadSubmission> optionalFileUploadSubmission = fileUploadSubmissionService
                     .getRandomFileUploadSubmissionEligibleForNewAssessment((FileUploadExercise) fileUploadExercise, fileUploadExercise.isExamExercise(), correctionRound);
-            submission = optionalFileUploadSubmission.orElse(null);
+                submission = optionalFileUploadSubmission.orElse(null);
+            }
         }
 
         if (submission != null) {

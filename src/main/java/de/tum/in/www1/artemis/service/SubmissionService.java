@@ -6,7 +6,12 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import de.tum.in.www1.artemis.domain.participation.AbstractBaseProgrammingExerciseParticipation;
+import de.tum.in.www1.artemis.domain.tutorialgroups.TutorialGroup;
+import de.tum.in.www1.artemis.domain.tutorialgroups.TutorialGroupRegistration;
+import de.tum.in.www1.artemis.repository.tutorialgroups.TutorialGroupRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -39,6 +44,8 @@ public class SubmissionService {
 
     private final CourseRepository courseRepository;
 
+    private final TutorialGroupRepository tutorialGroupRepository;
+
     protected final SubmissionRepository submissionRepository;
 
     protected final ResultRepository resultRepository;
@@ -60,7 +67,7 @@ public class SubmissionService {
     public SubmissionService(SubmissionRepository submissionRepository, UserRepository userRepository, AuthorizationCheckService authCheckService,
             ResultRepository resultRepository, StudentParticipationRepository studentParticipationRepository, ParticipationService participationService,
             FeedbackRepository feedbackRepository, ExamDateService examDateService, ExerciseDateService exerciseDateService, CourseRepository courseRepository,
-            ParticipationRepository participationRepository, ComplaintRepository complaintRepository) {
+            ParticipationRepository participationRepository, ComplaintRepository complaintRepository, TutorialGroupRepository tutorialGroupRepository) {
         this.submissionRepository = submissionRepository;
         this.userRepository = userRepository;
         this.authCheckService = authCheckService;
@@ -73,6 +80,7 @@ public class SubmissionService {
         this.courseRepository = courseRepository;
         this.participationRepository = participationRepository;
         this.complaintRepository = complaintRepository;
+        this.tutorialGroupRepository = tutorialGroupRepository;
     }
 
     /**
@@ -212,6 +220,61 @@ public class SubmissionService {
 
         return assessableSubmissions.stream().filter(a -> a.getParticipation().getIndividualDueDate() != null)
                 .min(Comparator.comparing(a -> a.getParticipation().getIndividualDueDate()));
+    }
+
+    /**
+     * TODO
+     * @return
+     */
+    public Optional<Submission> getNextAssessableSubmissionForTutor(Exercise exercise, boolean examMode, int correctionRound, User tutor) {
+        var assessableSubmissions = getAssessableSubmissions(exercise, examMode, correctionRound);
+
+        final Set<TutorialGroup> allTutorialGroupsOfTutor = tutorialGroupRepository.findAllByTeachingAssistant(tutor);
+
+        Optional<Submission> optionalStudentSubmission = assessableSubmissions.stream().filter(submission -> {
+            if (submission.getParticipation() instanceof StudentParticipation participation) {
+                // only load student participations in the first place
+
+                Optional<User> optionalUser = participation.getStudent();
+
+                if (optionalUser.isEmpty()) {
+                    // in case the participation only has a student group
+                    optionalUser = participation.getStudents().stream().findAny();
+                }
+                if (optionalUser.isPresent()) {
+                    User user = optionalUser.get();
+                    return user.getTutorialGroupRegistrations().stream()
+                        .map(TutorialGroupRegistration::getTutorialGroup)
+                        .anyMatch(allTutorialGroupsOfTutor::contains);
+                }
+            }
+            return false;
+        }).findAny();
+
+        if (optionalStudentSubmission.isPresent()) {
+            return optionalStudentSubmission;
+        }
+
+        if (!assessableSubmissions.isEmpty()) {
+            Optional<Submission> any = assessableSubmissions.stream().filter(submission -> {
+
+                if (submission.getParticipation() instanceof StudentParticipation participation) {
+                    Optional<User> optionalUser = participation.getStudent();
+
+                    if (optionalUser.isEmpty()) {
+                        // in case the participation only has a student group
+                        optionalUser = participation.getStudents().stream().findAny();
+                    }
+                    return optionalUser.map(user -> user.getTutorialGroupRegistrations().isEmpty()).orElse(false);
+                }
+                return false;
+            }).findAny();
+            if (any.isPresent()) {
+                return any;
+            }
+        }
+
+        return assessableSubmissions.stream().findAny();
     }
 
     /**

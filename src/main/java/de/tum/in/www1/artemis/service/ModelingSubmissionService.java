@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotNull;
 
+import de.tum.in.www1.artemis.repository.tutorialgroups.TutorialGroupRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -45,9 +46,9 @@ public class ModelingSubmissionService extends SubmissionService {
             CompassService compassService, UserRepository userRepository, SubmissionVersionService submissionVersionService, ParticipationService participationService,
             StudentParticipationRepository studentParticipationRepository, AuthorizationCheckService authCheckService, FeedbackRepository feedbackRepository,
             ExamDateService examDateService, ExerciseDateService exerciseDateService, CourseRepository courseRepository, ParticipationRepository participationRepository,
-            ModelElementRepository modelElementRepository, ComplaintRepository complaintRepository) {
+            ModelElementRepository modelElementRepository, ComplaintRepository complaintRepository, TutorialGroupRepository tutorialGroupRepository) {
         super(submissionRepository, userRepository, authCheckService, resultRepository, studentParticipationRepository, participationService, feedbackRepository, examDateService,
-                exerciseDateService, courseRepository, participationRepository, complaintRepository);
+                exerciseDateService, courseRepository, participationRepository, complaintRepository, tutorialGroupRepository);
         this.modelingSubmissionRepository = modelingSubmissionRepository;
         this.compassService = compassService;
         this.submissionVersionService = submissionVersionService;
@@ -163,8 +164,33 @@ public class ModelingSubmissionService extends SubmissionService {
      * @return a random modeling submission (potentially based on compass) if present
      */
     public Optional<ModelingSubmission> findRandomSubmissionWithoutExistingAssessment(boolean lockSubmission, int correctionRound, ModelingExercise modelingExercise,
-            boolean isExamMode) {
+                                                                                      boolean isExamMode) {
+        // TODO: own tutor
         var submissionWithoutResult = super.getRandomAssessableSubmission(modelingExercise, isExamMode, correctionRound);
+        if (submissionWithoutResult.isEmpty()) {
+            return Optional.empty();
+        }
+
+        ModelingSubmission modelingSubmission = (ModelingSubmission) submissionWithoutResult.get();
+        if (lockSubmission) {
+            if (compassService.isSupported(modelingExercise) && correctionRound == 0L) {
+                modelingSubmission = assignResultWithFeedbackSuggestionsToSubmission(modelingSubmission, modelingExercise);
+                setNumberOfAffectedSubmissionsPerElement(modelingSubmission);
+            }
+            lockSubmission(modelingSubmission, correctionRound);
+        }
+
+        return Optional.of(modelingSubmission);
+    }
+
+    /**
+     * TODO: Javadoc
+     * TODO: remove code duplication here and in method above
+     *
+     */
+    public Optional<ModelingSubmission> findRandomSubmissionForTutorWithoutExistingAssessment(boolean lockSubmission, int correctionRound, ModelingExercise modelingExercise,
+                                                                                      boolean isExamMode, User tutor) {
+        var submissionWithoutResult = super.getNextAssessableSubmissionForTutor(modelingExercise, isExamMode, correctionRound, tutor);
         if (submissionWithoutResult.isEmpty()) {
             return Optional.empty();
         }

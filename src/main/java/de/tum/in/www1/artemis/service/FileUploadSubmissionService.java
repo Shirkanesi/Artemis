@@ -9,6 +9,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import de.tum.in.www1.artemis.repository.tutorialgroups.TutorialGroupRepository;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -40,9 +41,9 @@ public class FileUploadSubmissionService extends SubmissionService {
     public FileUploadSubmissionService(FileUploadSubmissionRepository fileUploadSubmissionRepository, SubmissionRepository submissionRepository, ResultRepository resultRepository,
             ParticipationService participationService, UserRepository userRepository, StudentParticipationRepository studentParticipationRepository, FileService fileService,
             AuthorizationCheckService authCheckService, FeedbackRepository feedbackRepository, ExamDateService examDateService, ExerciseDateService exerciseDateService,
-            CourseRepository courseRepository, ParticipationRepository participationRepository, ComplaintRepository complaintRepository) {
+            CourseRepository courseRepository, ParticipationRepository participationRepository, ComplaintRepository complaintRepository, TutorialGroupRepository tutorialGroupRepository) {
         super(submissionRepository, userRepository, authCheckService, resultRepository, studentParticipationRepository, participationService, feedbackRepository, examDateService,
-                exerciseDateService, courseRepository, participationRepository, complaintRepository);
+                exerciseDateService, courseRepository, participationRepository, complaintRepository, tutorialGroupRepository);
         this.fileUploadSubmissionRepository = fileUploadSubmissionRepository;
         this.fileService = fileService;
         this.exerciseDateService = exerciseDateService;
@@ -92,7 +93,18 @@ public class FileUploadSubmissionService extends SubmissionService {
      * @return a fileUploadSubmission without any manual result or an empty Optional if no submission without manual result could be found
      */
     public Optional<FileUploadSubmission> getRandomFileUploadSubmissionEligibleForNewAssessment(FileUploadExercise fileUploadExercise, boolean examMode, int correctionRound) {
+        // TODO own tutor?
         var submissionWithoutResult = super.getRandomAssessableSubmission(fileUploadExercise, examMode, correctionRound);
+        if (submissionWithoutResult.isPresent()) {
+            FileUploadSubmission fileUploadSubmission = (FileUploadSubmission) submissionWithoutResult.get();
+            return Optional.of(fileUploadSubmission);
+        }
+        return Optional.empty();
+    }
+
+    public Optional<FileUploadSubmission> getFileUploadSubmissionForTutorEligibleForNewAssessment(FileUploadExercise fileUploadExercise, boolean examMode, int correctionRound, User tutor) {
+        // TODO own tutor?
+        var submissionWithoutResult = super.getNextAssessableSubmissionForTutor(fileUploadExercise, examMode, correctionRound, tutor);
         if (submissionWithoutResult.isPresent()) {
             FileUploadSubmission fileUploadSubmission = (FileUploadSubmission) submissionWithoutResult.get();
             return Optional.of(fileUploadSubmission);
@@ -235,8 +247,20 @@ public class FileUploadSubmissionService extends SubmissionService {
      * @return a locked file upload submission that needs an assessment
      */
     public FileUploadSubmission lockAndGetFileUploadSubmissionWithoutResult(FileUploadExercise fileUploadExercise, boolean ignoreTestRunParticipations, int correctionRound) {
+        // TODO: own tutor?!
         FileUploadSubmission fileUploadSubmission = getRandomFileUploadSubmissionEligibleForNewAssessment(fileUploadExercise, ignoreTestRunParticipations, correctionRound)
-                .orElseThrow(() -> new EntityNotFoundException("File upload submission for exercise " + fileUploadExercise.getId() + " could not be found"));
+            .orElseThrow(() -> new EntityNotFoundException("File upload submission for exercise " + fileUploadExercise.getId() + " could not be found"));
+        lockSubmission(fileUploadSubmission, correctionRound);
+        return fileUploadSubmission;
+    }
+
+    /**
+     * TODO: jdoc
+     */
+    public FileUploadSubmission lockAndGetFileUploadSubmissionForTutorWithoutResult(FileUploadExercise fileUploadExercise, boolean ignoreTestRunParticipations, int correctionRound, User tutor) {
+        // TODO: own tutor?!
+        FileUploadSubmission fileUploadSubmission = getFileUploadSubmissionForTutorEligibleForNewAssessment(fileUploadExercise, ignoreTestRunParticipations, correctionRound, tutor)
+            .orElseThrow(() -> new EntityNotFoundException("File upload submission for exercise " + fileUploadExercise.getId() + " could not be found"));
         lockSubmission(fileUploadSubmission, correctionRound);
         return fileUploadSubmission;
     }
