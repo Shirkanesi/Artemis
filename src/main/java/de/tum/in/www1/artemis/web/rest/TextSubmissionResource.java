@@ -223,7 +223,7 @@ public class TextSubmissionResource extends AbstractSubmissionResource {
 
         Optional<TextSubmission> optionalTextSubmission;
 
-        if (exercise.getFeedbackByTutorialGroup()) {
+        if (exercise.getPreferAssessmentByTutorialGroup()) {
             optionalTextSubmission = textSubmissionService.getNextTextSubmissionForTutorEligibleForNewAssessment((TextExercise) exercise,
                 skipAssessmentOrderOptimization, exercise.isExamExercise(), correctionRound, user);
         } else {

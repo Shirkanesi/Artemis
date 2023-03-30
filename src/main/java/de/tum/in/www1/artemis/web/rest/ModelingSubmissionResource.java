@@ -255,7 +255,7 @@ public class ModelingSubmissionResource extends AbstractSubmissionResource {
         modelingSubmissionService.checkSubmissionLockLimit(exercise.getCourseViaExerciseGroupOrCourseMember().getId());
 
         ModelingSubmission submission;
-        if (exercise.getFeedbackByTutorialGroup()) {
+        if (exercise.getPreferAssessmentByTutorialGroup()) {
             submission = modelingSubmissionService.findRandomSubmissionForTutorWithoutExistingAssessment(lockSubmission, correctionRound, modelingExercise, isExamMode, user)
                 .orElse(null);
         } else {

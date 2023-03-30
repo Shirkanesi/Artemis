@@ -245,7 +245,7 @@ public class FileUploadSubmissionResource extends AbstractSubmissionResource {
 
         final FileUploadSubmission submission;
 
-        if (fileUploadExercise.getFeedbackByTutorialGroup()) {
+        if (fileUploadExercise.getPreferAssessmentByTutorialGroup()) {
             if (lockSubmission) {
                 submission = fileUploadSubmissionService.lockAndGetFileUploadSubmissionForTutorWithoutResult((FileUploadExercise) fileUploadExercise, fileUploadExercise.isExamExercise(), correctionRound, user);
             } else {
