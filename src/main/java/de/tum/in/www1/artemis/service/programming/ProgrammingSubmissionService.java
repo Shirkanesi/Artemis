@@ -457,8 +457,8 @@ public class ProgrammingSubmissionService extends SubmissionService {
         return Optional.empty();
     }
 
-    public Optional<ProgrammingSubmission> getNextAssessableSubmissionForTutor(ProgrammingExercise programmingExercise, boolean examMode, int correctionRound, User tutor) {
-        var submissionWithoutResult = super.getNextAssessableSubmissionForTutor(programmingExercise, examMode, correctionRound, tutor);
+    public Optional<ProgrammingSubmission> getNextAssessableSubmissionPreferOwnTutorialGroup(ProgrammingExercise programmingExercise, boolean examMode, int correctionRound, User tutor) {
+        var submissionWithoutResult = super.getNextAssessableSubmissionPreferOwnTutorialGroup(programmingExercise, examMode, correctionRound, tutor);
         if (submissionWithoutResult.isPresent()) {
             ProgrammingSubmission programmingSubmission = (ProgrammingSubmission) submissionWithoutResult.get();
             return Optional.of(programmingSubmission);

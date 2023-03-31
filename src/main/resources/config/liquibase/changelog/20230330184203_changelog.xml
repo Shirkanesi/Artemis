@@ -4,7 +4,7 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.18.xsd">
     <changeSet author="shirkanesi" id="20230330194203">
         <addColumn tableName="exercise">
-            <column name="preferAssessment_by_tutorial_group" type="boolean" defaultValueBoolean="false"/>
+            <column name="prefer_assessment_by_tutorial_group" type="boolean" defaultValueBoolean="false"/>
         </addColumn>
         </changeSet>
 </databaseChangeLog>

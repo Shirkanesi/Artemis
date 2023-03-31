@@ -102,9 +102,9 @@ public class FileUploadSubmissionService extends SubmissionService {
         return Optional.empty();
     }
 
-    public Optional<FileUploadSubmission> getFileUploadSubmissionForTutorEligibleForNewAssessment(FileUploadExercise fileUploadExercise, boolean examMode, int correctionRound, User tutor) {
+    public Optional<FileUploadSubmission> getFileUploadSubmissionEligibleForNewAssessmentPreferOwnTutorialGroup(FileUploadExercise fileUploadExercise, boolean examMode, int correctionRound, User tutor) {
         // TODO own tutor?
-        var submissionWithoutResult = super.getNextAssessableSubmissionForTutor(fileUploadExercise, examMode, correctionRound, tutor);
+        var submissionWithoutResult = super.getNextAssessableSubmissionPreferOwnTutorialGroup(fileUploadExercise, examMode, correctionRound, tutor);
         if (submissionWithoutResult.isPresent()) {
             FileUploadSubmission fileUploadSubmission = (FileUploadSubmission) submissionWithoutResult.get();
             return Optional.of(fileUploadSubmission);
@@ -259,7 +259,7 @@ public class FileUploadSubmissionService extends SubmissionService {
      */
     public FileUploadSubmission lockAndGetFileUploadSubmissionForTutorWithoutResult(FileUploadExercise fileUploadExercise, boolean ignoreTestRunParticipations, int correctionRound, User tutor) {
         // TODO: own tutor?!
-        FileUploadSubmission fileUploadSubmission = getFileUploadSubmissionForTutorEligibleForNewAssessment(fileUploadExercise, ignoreTestRunParticipations, correctionRound, tutor)
+        FileUploadSubmission fileUploadSubmission = getFileUploadSubmissionEligibleForNewAssessmentPreferOwnTutorialGroup(fileUploadExercise, ignoreTestRunParticipations, correctionRound, tutor)
             .orElseThrow(() -> new EntityNotFoundException("File upload submission for exercise " + fileUploadExercise.getId() + " could not be found"));
         lockSubmission(fileUploadSubmission, correctionRound);
         return fileUploadSubmission;

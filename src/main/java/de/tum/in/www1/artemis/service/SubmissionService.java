@@ -6,9 +6,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import de.tum.in.www1.artemis.domain.participation.AbstractBaseProgrammingExerciseParticipation;
 import de.tum.in.www1.artemis.domain.tutorialgroups.TutorialGroup;
 import de.tum.in.www1.artemis.domain.tutorialgroups.TutorialGroupRegistration;
 import de.tum.in.www1.artemis.repository.tutorialgroups.TutorialGroupRepository;
@@ -226,7 +224,7 @@ public class SubmissionService {
      * TODO
      * @return
      */
-    public Optional<Submission> getNextAssessableSubmissionForTutor(Exercise exercise, boolean examMode, int correctionRound, User tutor) {
+    public Optional<Submission> getNextAssessableSubmissionPreferOwnTutorialGroup(Exercise exercise, boolean examMode, int correctionRound, User tutor) {
         var assessableSubmissions = getAssessableSubmissions(exercise, examMode, correctionRound);
 
         final Set<TutorialGroup> allTutorialGroupsOfTutor = tutorialGroupRepository.findAllByTeachingAssistant(tutor);

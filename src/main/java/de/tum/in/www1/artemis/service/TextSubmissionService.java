@@ -138,8 +138,8 @@ public class TextSubmissionService extends SubmissionService {
      * @param tutor
      * @return
      */
-    public Optional<TextSubmission> getNextTextSubmissionForTutorEligibleForNewAssessment(TextExercise textExercise, boolean examMode, int correctionRound, User tutor) {
-        return getNextTextSubmissionForTutorEligibleForNewAssessment(textExercise, false, examMode, correctionRound, tutor);
+    public Optional<TextSubmission> getNextTextSubmissionEligibleForNewAssessmentPreferOwnTutorialGroup(TextExercise textExercise, boolean examMode, int correctionRound, User tutor) {
+        return getNextTextSubmissionEligibleForNewAssessmentPreferOwnTutorialGroup(textExercise, false, examMode, correctionRound, tutor);
     }
 
     /**
@@ -168,13 +168,13 @@ public class TextSubmissionService extends SubmissionService {
     /**
      * TODO: javadoc
      */
-    public Optional<TextSubmission> getNextTextSubmissionForTutorEligibleForNewAssessment(TextExercise textExercise, boolean skipAssessmentQueue, boolean examMode, int correctionRound, User tutor) {
+    public Optional<TextSubmission> getNextTextSubmissionEligibleForNewAssessmentPreferOwnTutorialGroup(TextExercise textExercise, boolean skipAssessmentQueue, boolean examMode, int correctionRound, User tutor) {
         // If automatic assessment is enabled and available, try to learn the most possible amount during the first correction round
         if (textExercise.isAutomaticAssessmentEnabled() && textAssessmentQueueService.isPresent() && !skipAssessmentQueue && correctionRound == 0) {
             return textAssessmentQueueService.get().getProposedTextSubmission(textExercise);
         }
 
-        var submissionWithoutResult = super.getNextAssessableSubmissionForTutor(textExercise, examMode, correctionRound, tutor);
+        var submissionWithoutResult = super.getNextAssessableSubmissionPreferOwnTutorialGroup(textExercise, examMode, correctionRound, tutor);
         if (submissionWithoutResult.isPresent()) {
             TextSubmission textSubmission = (TextSubmission) submissionWithoutResult.get();
             return Optional.of(textSubmission);

@@ -256,7 +256,7 @@ public class ModelingSubmissionResource extends AbstractSubmissionResource {
 
         ModelingSubmission submission;
         if (exercise.getPreferAssessmentByTutorialGroup()) {
-            submission = modelingSubmissionService.findRandomSubmissionForTutorWithoutExistingAssessment(lockSubmission, correctionRound, modelingExercise, isExamMode, user)
+            submission = modelingSubmissionService.findRandomSubmissionWithoutExistingAssessmentPreferOwnTutorialGroup(lockSubmission, correctionRound, modelingExercise, isExamMode, user)
                 .orElse(null);
         } else {
             submission = modelingSubmissionService.findRandomSubmissionWithoutExistingAssessment(lockSubmission, correctionRound, modelingExercise, isExamMode)

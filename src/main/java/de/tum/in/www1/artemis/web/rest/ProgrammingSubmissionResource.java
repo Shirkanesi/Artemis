@@ -456,7 +456,7 @@ public class ProgrammingSubmissionResource {
         }
         else {
             if (programmingExercise.getPreferAssessmentByTutorialGroup()) {
-                submission = programmingSubmissionService.getNextAssessableSubmissionForTutor(programmingExercise, programmingExercise.isExamExercise(), correctionRound, user).orElse(null);
+                submission = programmingSubmissionService.getNextAssessableSubmissionPreferOwnTutorialGroup(programmingExercise, programmingExercise.isExamExercise(), correctionRound, user).orElse(null);
             } else {
                 submission = programmingSubmissionService.getRandomAssessableSubmission(programmingExercise, programmingExercise.isExamExercise(), correctionRound).orElse(null);
             }

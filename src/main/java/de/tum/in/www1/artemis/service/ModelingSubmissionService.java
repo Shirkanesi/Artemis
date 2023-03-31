@@ -188,9 +188,9 @@ public class ModelingSubmissionService extends SubmissionService {
      * TODO: remove code duplication here and in method above
      *
      */
-    public Optional<ModelingSubmission> findRandomSubmissionForTutorWithoutExistingAssessment(boolean lockSubmission, int correctionRound, ModelingExercise modelingExercise,
-                                                                                      boolean isExamMode, User tutor) {
-        var submissionWithoutResult = super.getNextAssessableSubmissionForTutor(modelingExercise, isExamMode, correctionRound, tutor);
+    public Optional<ModelingSubmission> findRandomSubmissionWithoutExistingAssessmentPreferOwnTutorialGroup(boolean lockSubmission, int correctionRound, ModelingExercise modelingExercise,
+                                                                                                            boolean isExamMode, User tutor) {
+        var submissionWithoutResult = super.getNextAssessableSubmissionPreferOwnTutorialGroup(modelingExercise, isExamMode, correctionRound, tutor);
         if (submissionWithoutResult.isEmpty()) {
             return Optional.empty();
         }

@@ -53,7 +53,7 @@ public abstract class Exercise extends BaseExercise implements LearningObject {
     @Column(name = "allow_manual_feedback_requests")
     private boolean allowManualFeedbackRequests;
 
-    @Column(name = "preferAssessment_by_tutorial_group")
+    @Column(name = "prefer_assessment_by_tutorial_group")
     private boolean preferAssessmentByTutorialGroup;
 
     @Enumerated(EnumType.STRING)
