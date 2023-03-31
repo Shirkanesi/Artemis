@@ -221,7 +221,13 @@ public class SubmissionService {
     }
 
     /**
-     * TODO
+     * TODO Javadoc
+     * TODO: maybe the code below can be optimized
+     *
+     * 1) Own tutorial group
+     * 2) No tutorial group
+     * 3) Any submission
+     *
      * @return
      */
     public Optional<Submission> getNextAssessableSubmissionPreferOwnTutorialGroup(Exercise exercise, boolean examMode, int correctionRound, User tutor) {
@@ -229,9 +235,10 @@ public class SubmissionService {
 
         final Set<TutorialGroup> allTutorialGroupsOfTutor = tutorialGroupRepository.findAllByTeachingAssistant(tutor);
 
+        // search for submissions of users in any tutorial group of the TA
         Optional<Submission> optionalStudentSubmission = assessableSubmissions.stream().filter(submission -> {
             if (submission.getParticipation() instanceof StudentParticipation participation) {
-                // only load student participations in the first place
+                // only load student-participations in the first place
 
                 Optional<User> optionalUser = participation.getStudent();
 
@@ -254,8 +261,8 @@ public class SubmissionService {
         }
 
         if (!assessableSubmissions.isEmpty()) {
+            // try to find a submission of a user *without* any tutorial group
             Optional<Submission> any = assessableSubmissions.stream().filter(submission -> {
-
                 if (submission.getParticipation() instanceof StudentParticipation participation) {
                     Optional<User> optionalUser = participation.getStudent();
 
@@ -270,8 +277,11 @@ public class SubmissionService {
             if (any.isPresent()) {
                 return any;
             }
+        } else {
+            return Optional.empty();
         }
 
+        // return any of the remaining submissions
         return assessableSubmissions.stream().findAny();
     }
 

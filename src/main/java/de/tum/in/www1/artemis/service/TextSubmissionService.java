@@ -4,6 +4,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import de.tum.in.www1.artemis.domain.ProgrammingSubmission;
 import de.tum.in.www1.artemis.repository.tutorialgroups.TutorialGroupRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -157,12 +158,8 @@ public class TextSubmissionService extends SubmissionService {
         if (textExercise.isAutomaticAssessmentEnabled() && textAssessmentQueueService.isPresent() && !skipAssessmentQueue && correctionRound == 0) {
             return textAssessmentQueueService.get().getProposedTextSubmission(textExercise);
         }
-        var submissionWithoutResult = super.getRandomAssessableSubmission(textExercise, examMode, correctionRound);
-        if (submissionWithoutResult.isPresent()) {
-            TextSubmission textSubmission = (TextSubmission) submissionWithoutResult.get();
-            return Optional.of(textSubmission);
-        }
-        return Optional.empty();
+        return super.getRandomAssessableSubmission(textExercise, examMode, correctionRound)
+            .map(submission -> (TextSubmission) submission);
     }
 
     /**
@@ -174,12 +171,8 @@ public class TextSubmissionService extends SubmissionService {
             return textAssessmentQueueService.get().getProposedTextSubmission(textExercise);
         }
 
-        var submissionWithoutResult = super.getNextAssessableSubmissionPreferOwnTutorialGroup(textExercise, examMode, correctionRound, tutor);
-        if (submissionWithoutResult.isPresent()) {
-            TextSubmission textSubmission = (TextSubmission) submissionWithoutResult.get();
-            return Optional.of(textSubmission);
-        }
-        return Optional.empty();
+        return super.getNextAssessableSubmissionPreferOwnTutorialGroup(textExercise, examMode, correctionRound, tutor)
+            .map(submission -> (TextSubmission) submission);
     }
 
     /**

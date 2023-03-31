@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotNull;
 
+import de.tum.in.www1.artemis.domain.Submission;
 import de.tum.in.www1.artemis.repository.tutorialgroups.TutorialGroupRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -165,22 +166,8 @@ public class ModelingSubmissionService extends SubmissionService {
      */
     public Optional<ModelingSubmission> findRandomSubmissionWithoutExistingAssessment(boolean lockSubmission, int correctionRound, ModelingExercise modelingExercise,
                                                                                       boolean isExamMode) {
-        // TODO: own tutor
         var submissionWithoutResult = super.getRandomAssessableSubmission(modelingExercise, isExamMode, correctionRound);
-        if (submissionWithoutResult.isEmpty()) {
-            return Optional.empty();
-        }
-
-        ModelingSubmission modelingSubmission = (ModelingSubmission) submissionWithoutResult.get();
-        if (lockSubmission) {
-            if (compassService.isSupported(modelingExercise) && correctionRound == 0L) {
-                modelingSubmission = assignResultWithFeedbackSuggestionsToSubmission(modelingSubmission, modelingExercise);
-                setNumberOfAffectedSubmissionsPerElement(modelingSubmission);
-            }
-            lockSubmission(modelingSubmission, correctionRound);
-        }
-
-        return Optional.of(modelingSubmission);
+        return prepareModelingSubmissionForAssessment(lockSubmission, correctionRound, modelingExercise, submissionWithoutResult);
     }
 
     /**
@@ -191,6 +178,18 @@ public class ModelingSubmissionService extends SubmissionService {
     public Optional<ModelingSubmission> findRandomSubmissionWithoutExistingAssessmentPreferOwnTutorialGroup(boolean lockSubmission, int correctionRound, ModelingExercise modelingExercise,
                                                                                                             boolean isExamMode, User tutor) {
         var submissionWithoutResult = super.getNextAssessableSubmissionPreferOwnTutorialGroup(modelingExercise, isExamMode, correctionRound, tutor);
+        return prepareModelingSubmissionForAssessment(lockSubmission, correctionRound, modelingExercise, submissionWithoutResult);
+    }
+
+    /**
+     * TODO: Javadoc
+     * @param lockSubmission
+     * @param correctionRound
+     * @param modelingExercise
+     * @param submissionWithoutResult
+     * @return
+     */
+    private Optional<ModelingSubmission> prepareModelingSubmissionForAssessment(boolean lockSubmission, int correctionRound, ModelingExercise modelingExercise, Optional<Submission> submissionWithoutResult) {
         if (submissionWithoutResult.isEmpty()) {
             return Optional.empty();
         }

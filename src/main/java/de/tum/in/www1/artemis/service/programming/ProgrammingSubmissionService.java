@@ -449,21 +449,13 @@ public class ProgrammingSubmissionService extends SubmissionService {
      * @return a programmingSubmission without any manual result or an empty Optional if no submission without manual result could be found
      */
     public Optional<ProgrammingSubmission> getNextAssessableSubmission(ProgrammingExercise programmingExercise, boolean examMode, int correctionRound) {
-        var submissionWithoutResult = super.getNextAssessableSubmission(programmingExercise, examMode, correctionRound);
-        if (submissionWithoutResult.isPresent()) {
-            ProgrammingSubmission programmingSubmission = (ProgrammingSubmission) submissionWithoutResult.get();
-            return Optional.of(programmingSubmission);
-        }
-        return Optional.empty();
+        return super.getNextAssessableSubmission(programmingExercise, examMode, correctionRound)
+            .map(submission -> (ProgrammingSubmission) submission);
     }
 
     public Optional<ProgrammingSubmission> getNextAssessableSubmissionPreferOwnTutorialGroup(ProgrammingExercise programmingExercise, boolean examMode, int correctionRound, User tutor) {
-        var submissionWithoutResult = super.getNextAssessableSubmissionPreferOwnTutorialGroup(programmingExercise, examMode, correctionRound, tutor);
-        if (submissionWithoutResult.isPresent()) {
-            ProgrammingSubmission programmingSubmission = (ProgrammingSubmission) submissionWithoutResult.get();
-            return Optional.of(programmingSubmission);
-        }
-        return Optional.empty();
+        return super.getNextAssessableSubmissionPreferOwnTutorialGroup(programmingExercise, examMode, correctionRound, tutor)
+            .map(submission -> (ProgrammingSubmission) submission);
     }
 
     /**
@@ -477,12 +469,8 @@ public class ProgrammingSubmissionService extends SubmissionService {
      * @return a programmingSubmission without any manual result or an empty Optional if no submission without manual result could be found
      */
     public Optional<ProgrammingSubmission> getRandomAssessableSubmission(ProgrammingExercise programmingExercise, boolean examMode, int correctionRound) {
-        var submissionWithoutResult = super.getRandomAssessableSubmission(programmingExercise, examMode, correctionRound);
-        if (submissionWithoutResult.isPresent()) {
-            ProgrammingSubmission programmingSubmission = (ProgrammingSubmission) submissionWithoutResult.get();
-            return Optional.of(programmingSubmission);
-        }
-        return Optional.empty();
+        return super.getRandomAssessableSubmission(programmingExercise, examMode, correctionRound)
+            .map(submission -> (ProgrammingSubmission) submission);
     }
 
     /**

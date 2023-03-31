@@ -9,6 +9,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import de.tum.in.www1.artemis.domain.TextSubmission;
 import de.tum.in.www1.artemis.repository.tutorialgroups.TutorialGroupRepository;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.http.HttpStatus;
@@ -93,23 +94,13 @@ public class FileUploadSubmissionService extends SubmissionService {
      * @return a fileUploadSubmission without any manual result or an empty Optional if no submission without manual result could be found
      */
     public Optional<FileUploadSubmission> getRandomFileUploadSubmissionEligibleForNewAssessment(FileUploadExercise fileUploadExercise, boolean examMode, int correctionRound) {
-        // TODO own tutor?
-        var submissionWithoutResult = super.getRandomAssessableSubmission(fileUploadExercise, examMode, correctionRound);
-        if (submissionWithoutResult.isPresent()) {
-            FileUploadSubmission fileUploadSubmission = (FileUploadSubmission) submissionWithoutResult.get();
-            return Optional.of(fileUploadSubmission);
-        }
-        return Optional.empty();
+        return super.getRandomAssessableSubmission(fileUploadExercise, examMode, correctionRound)
+            .map(submission -> (FileUploadSubmission) submission);
     }
 
     public Optional<FileUploadSubmission> getFileUploadSubmissionEligibleForNewAssessmentPreferOwnTutorialGroup(FileUploadExercise fileUploadExercise, boolean examMode, int correctionRound, User tutor) {
-        // TODO own tutor?
-        var submissionWithoutResult = super.getNextAssessableSubmissionPreferOwnTutorialGroup(fileUploadExercise, examMode, correctionRound, tutor);
-        if (submissionWithoutResult.isPresent()) {
-            FileUploadSubmission fileUploadSubmission = (FileUploadSubmission) submissionWithoutResult.get();
-            return Optional.of(fileUploadSubmission);
-        }
-        return Optional.empty();
+        return super.getNextAssessableSubmissionPreferOwnTutorialGroup(fileUploadExercise, examMode, correctionRound, tutor)
+            .map(submission -> (FileUploadSubmission) submission);
     }
 
     /**
