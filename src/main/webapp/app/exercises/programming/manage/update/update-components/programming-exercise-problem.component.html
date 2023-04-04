@@ -204,3 +204,24 @@
         </label>
     </div>
 </div>
+<div class="form-group mb-0">
+    <div class="form-check">
+        <label [class]="!validIdeSelection() ? 'form-check-label text-danger' : 'form-check-label'" for="field_preferGradingByTutorialGroup">
+            <input
+                class="form-check-input"
+                type="checkbox"
+                name="preferGradingByTutorialGroup"
+                id="field_preferGradingByTutorialGroup"
+                [(ngModel)]="programmingExercise.preferGradingByTutorialGroup"
+            />
+            <span jhiTranslate="artemisApp.programmingExercise.preferGradingByTutorialGroup.title">Prefer Grading by Tutorial Group</span>
+            <fa-icon
+                *ngIf="!validIdeSelection()"
+                [icon]="faQuestionCircle"
+                class="text-danger"
+                [placement]="'top'"
+                ngbTooltip="{{ 'artemisApp.programmingExercise.preferGradingByTutorialGroup.alert' | artemisTranslate }}"
+            ></fa-icon>
+        </label>
+    </div>
+</div>

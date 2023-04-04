@@ -4,6 +4,8 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import de.tum.in.www1.artemis.domain.ProgrammingSubmission;
+import de.tum.in.www1.artemis.repository.tutorialgroups.TutorialGroupRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -37,9 +39,9 @@ public class TextSubmissionService extends SubmissionService {
             StudentParticipationRepository studentParticipationRepository, ParticipationService participationService, ResultRepository resultRepository,
             UserRepository userRepository, Optional<TextAssessmentQueueService> textAssessmentQueueService, AuthorizationCheckService authCheckService,
             SubmissionVersionService submissionVersionService, FeedbackRepository feedbackRepository, ExamDateService examDateService, ExerciseDateService exerciseDateService,
-            CourseRepository courseRepository, ParticipationRepository participationRepository, ComplaintRepository complaintRepository) {
+            CourseRepository courseRepository, ParticipationRepository participationRepository, ComplaintRepository complaintRepository, TutorialGroupRepository tutorialGroupRepository) {
         super(submissionRepository, userRepository, authCheckService, resultRepository, studentParticipationRepository, participationService, feedbackRepository, examDateService,
-                exerciseDateService, courseRepository, participationRepository, complaintRepository);
+                exerciseDateService, courseRepository, participationRepository, complaintRepository, tutorialGroupRepository);
         this.textSubmissionRepository = textSubmissionRepository;
         this.textAssessmentQueueService = textAssessmentQueueService;
         this.submissionVersionService = submissionVersionService;
@@ -125,7 +127,20 @@ public class TextSubmissionService extends SubmissionService {
      * @return a textSubmission without any manual result or an empty Optional if no submission without manual result could be found
      */
     public Optional<TextSubmission> getRandomTextSubmissionEligibleForNewAssessment(TextExercise textExercise, boolean examMode, int correctionRound) {
+        // TODO: own tutor
         return getRandomTextSubmissionEligibleForNewAssessment(textExercise, false, examMode, correctionRound);
+    }
+
+    /**
+     * TODO: JavaDoc
+     * @param textExercise
+     * @param examMode
+     * @param correctionRound
+     * @param tutor
+     * @return
+     */
+    public Optional<TextSubmission> getNextTextSubmissionEligibleForNewAssessmentPreferOwnTutorialGroup(TextExercise textExercise, boolean examMode, int correctionRound, User tutor) {
+        return getNextTextSubmissionEligibleForNewAssessmentPreferOwnTutorialGroup(textExercise, false, examMode, correctionRound, tutor);
     }
 
     /**
@@ -143,12 +158,21 @@ public class TextSubmissionService extends SubmissionService {
         if (textExercise.isAutomaticAssessmentEnabled() && textAssessmentQueueService.isPresent() && !skipAssessmentQueue && correctionRound == 0) {
             return textAssessmentQueueService.get().getProposedTextSubmission(textExercise);
         }
-        var submissionWithoutResult = super.getRandomAssessableSubmission(textExercise, examMode, correctionRound);
-        if (submissionWithoutResult.isPresent()) {
-            TextSubmission textSubmission = (TextSubmission) submissionWithoutResult.get();
-            return Optional.of(textSubmission);
+        return super.getRandomAssessableSubmission(textExercise, examMode, correctionRound)
+            .map(submission -> (TextSubmission) submission);
+    }
+
+    /**
+     * TODO: javadoc
+     */
+    public Optional<TextSubmission> getNextTextSubmissionEligibleForNewAssessmentPreferOwnTutorialGroup(TextExercise textExercise, boolean skipAssessmentQueue, boolean examMode, int correctionRound, User tutor) {
+        // If automatic assessment is enabled and available, try to learn the most possible amount during the first correction round
+        if (textExercise.isAutomaticAssessmentEnabled() && textAssessmentQueueService.isPresent() && !skipAssessmentQueue && correctionRound == 0) {
+            return textAssessmentQueueService.get().getProposedTextSubmission(textExercise);
         }
-        return Optional.empty();
+
+        return super.getNextAssessableSubmissionPreferOwnTutorialGroup(textExercise, examMode, correctionRound, tutor)
+            .map(submission -> (TextSubmission) submission);
     }
 
     /**

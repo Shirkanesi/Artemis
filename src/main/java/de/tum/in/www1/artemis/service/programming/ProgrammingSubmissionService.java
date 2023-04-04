@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
 
+import de.tum.in.www1.artemis.repository.tutorialgroups.TutorialGroupRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -74,9 +75,9 @@ public class ProgrammingSubmissionService extends SubmissionService {
             StudentParticipationRepository studentParticipationRepository, FeedbackRepository feedbackRepository, ExamDateService examDateService,
             ExerciseDateService exerciseDateService, CourseRepository courseRepository, ParticipationRepository participationRepository,
             ProgrammingExerciseStudentParticipationRepository programmingExerciseStudentParticipationRepository, ComplaintRepository complaintRepository,
-            ProgrammingExerciseGitDiffReportService programmingExerciseGitDiffReportService) {
+            ProgrammingExerciseGitDiffReportService programmingExerciseGitDiffReportService, TutorialGroupRepository tutorialGroupRepository) {
         super(submissionRepository, userRepository, authCheckService, resultRepository, studentParticipationRepository, participationService, feedbackRepository, examDateService,
-                exerciseDateService, courseRepository, participationRepository, complaintRepository);
+                exerciseDateService, courseRepository, participationRepository, complaintRepository, tutorialGroupRepository);
         this.programmingSubmissionRepository = programmingSubmissionRepository;
         this.programmingExerciseRepository = programmingExerciseRepository;
         this.programmingMessagingService = programmingMessagingService;
@@ -448,12 +449,13 @@ public class ProgrammingSubmissionService extends SubmissionService {
      * @return a programmingSubmission without any manual result or an empty Optional if no submission without manual result could be found
      */
     public Optional<ProgrammingSubmission> getNextAssessableSubmission(ProgrammingExercise programmingExercise, boolean examMode, int correctionRound) {
-        var submissionWithoutResult = super.getNextAssessableSubmission(programmingExercise, examMode, correctionRound);
-        if (submissionWithoutResult.isPresent()) {
-            ProgrammingSubmission programmingSubmission = (ProgrammingSubmission) submissionWithoutResult.get();
-            return Optional.of(programmingSubmission);
-        }
-        return Optional.empty();
+        return super.getNextAssessableSubmission(programmingExercise, examMode, correctionRound)
+            .map(submission -> (ProgrammingSubmission) submission);
+    }
+
+    public Optional<ProgrammingSubmission> getNextAssessableSubmissionPreferOwnTutorialGroup(ProgrammingExercise programmingExercise, boolean examMode, int correctionRound, User tutor) {
+        return super.getNextAssessableSubmissionPreferOwnTutorialGroup(programmingExercise, examMode, correctionRound, tutor)
+            .map(submission -> (ProgrammingSubmission) submission);
     }
 
     /**
@@ -467,12 +469,8 @@ public class ProgrammingSubmissionService extends SubmissionService {
      * @return a programmingSubmission without any manual result or an empty Optional if no submission without manual result could be found
      */
     public Optional<ProgrammingSubmission> getRandomAssessableSubmission(ProgrammingExercise programmingExercise, boolean examMode, int correctionRound) {
-        var submissionWithoutResult = super.getRandomAssessableSubmission(programmingExercise, examMode, correctionRound);
-        if (submissionWithoutResult.isPresent()) {
-            ProgrammingSubmission programmingSubmission = (ProgrammingSubmission) submissionWithoutResult.get();
-            return Optional.of(programmingSubmission);
-        }
-        return Optional.empty();
+        return super.getRandomAssessableSubmission(programmingExercise, examMode, correctionRound)
+            .map(submission -> (ProgrammingSubmission) submission);
     }
 
     /**

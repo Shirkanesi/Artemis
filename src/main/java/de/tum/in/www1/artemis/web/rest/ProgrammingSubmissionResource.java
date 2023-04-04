@@ -455,7 +455,11 @@ public class ProgrammingSubmissionResource {
             submission = programmingSubmissionService.getNextAssessableSubmission(programmingExercise, programmingExercise.isExamExercise(), correctionRound).orElse(null);
         }
         else {
-            submission = programmingSubmissionService.getRandomAssessableSubmission(programmingExercise, programmingExercise.isExamExercise(), correctionRound).orElse(null);
+            if (programmingExercise.getPreferAssessmentByTutorialGroup()) {
+                submission = programmingSubmissionService.getNextAssessableSubmissionPreferOwnTutorialGroup(programmingExercise, programmingExercise.isExamExercise(), correctionRound, user).orElse(null);
+            } else {
+                submission = programmingSubmissionService.getRandomAssessableSubmission(programmingExercise, programmingExercise.isExamExercise(), correctionRound).orElse(null);
+            }
 
             // Check if tutors can start assessing the students submission
             programmingSubmissionService.checkIfExerciseDueDateIsReached(programmingExercise);

@@ -41,6 +41,7 @@ export class ProgrammingExercise extends Exercise {
     public testRepositoryUrl?: string;
     public publishBuildPlanUrl?: boolean;
     public allowOnlineEditor?: boolean;
+    public preferGradingByTutorialGroup?: boolean;
     public staticCodeAnalysisEnabled?: boolean;
     /**
      * Max penalty from SCA in percentage
@@ -86,6 +87,7 @@ export class ProgrammingExercise extends Exercise {
         this.solutionParticipation = new SolutionProgrammingExerciseParticipation();
         this.publishBuildPlanUrl = false; // default value
         this.allowOnlineEditor = false; // default value
+        this.preferGradingByTutorialGroup = false; // default value
         this.staticCodeAnalysisEnabled = false; // default value
         this.allowOfflineIde = true; // default value
         this.programmingLanguage = ProgrammingLanguage.JAVA; // default value
